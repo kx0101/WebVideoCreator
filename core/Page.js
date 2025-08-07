@@ -1005,6 +1005,9 @@ export default class Page extends EventEmitter {
         return await this.target.screenshot(options);
     }
 
+    async captureFrame() {
+        return await this.#captureFrame();
+    }
 }
 
 class PageError extends Error {
