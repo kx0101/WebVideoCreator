@@ -1,15 +1,15 @@
 {
-  "name": "web-video-creator",
-  "version": "0.0.34",
+  "name": "@kaizen-gaming/web-video-creator",
+  "version": "0.0.36",
   "description": "A framework for creating videos based on Node.js + Puppeteer + FFmpeg.",
   "type": "module",
   "main": "index.js",
   "scripts": {},
-  "author": "Vinlic",
+  "author": "kx0101",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Vinlic/WebVideoCreator.git"
+    "url": "https://github.com/kx0101/WebVideoCreator.git"
   },
   "files": [
     "api/",
@@ -51,7 +51,7 @@
     "screeencasts",
     "headless"
   ],
-  "bugs": "https://github.com/Vinlic/WebVideoCreator/issues",
+  "bugs": "https://github.com/kx0101/WebVideoCreator/issues",
   "dependencies": {
     "@puppeteer/browsers": "^1.7.1",
     "ansi-colors": "^4.1.3",

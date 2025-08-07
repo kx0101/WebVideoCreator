@@ -1,5 +1,3 @@
-[简体中文](./README.md) | [English](./README.en-US.md)
-
 <p align="center" style="background:#fff">
   <img width="650px" src="./assets/web-video-creator.png" />
 </p>
@@ -11,108 +9,108 @@
 ![npm](https://img.shields.io/npm/dt/web-video-creator)
 ![GitHub Repo stars](https://img.shields.io/github/stars/Vinlic/WebVideoCreator)
 
-# 简介
+# Introduction
 
-🌈 WebVideoCreator（简称WVC）是一个将Web动画渲染为视频的框架，基于 Node.js + Puppeteer + Chrome + FFmpeg 实现，它执行确定性的渲染，准确的以目标帧率捕获任何可在HTML5播放动画（CSS3动画/SVG动画/Lottie动画/GIF动画/APNG动画/WEBP动画）以及任何基于时间轴使用[RAF](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFrame)驱动的动画（[anime.js](https://animejs.com/)是一个不错的选择 :D），当然您也可以调皮的使用setInterval或者setTimeout来控制动画，支持导出和嵌入mp4或透明通道的webm视频，还支持转场合成、音频合成与字体加载等功能。让我们[快速开始](#快速开始) 🍻。
+🌈 WebVideoCreator (abbreviated as WVC) is a framework for rendering web animations into videos. It's implemented based on Node.js + Puppeteer + Chrome + FFmpeg. It performs deterministic rendering and captures any HTML5-playable animations (CSS3 animations/SVG animations/Lottie animations/GIF animations/APNG animations/WEBP animations) and any timeline-based animations driven by [RAF](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame). You can also mischievously use `setInterval` or `setTimeout` to control animations. WVC supports embedding or exporting MP4 and transparent WebM videos, as well as features such as transition compositing, audio synthesis, and font loading. Let's get started with the [Quick Start](#quick-start) 🍻.
 
-WVC为您酷炫的动画页面创造了一个虚拟时间环境🕒（也许可以想象成是一个《楚门的世界》），它的主要职责是将一个 [不确定性渲染的环境](./docs/renderer-env.md#不确定性的渲染环境) 转化到 [确定性渲染的环境](./docs/renderer-env.md#确定性的渲染环境)。
+WVC creates a virtual time environment🕒 for your cool animated pages, which can be imagined as something akin to "The Truman Show." Its main responsibility is to transform an [uncertain rendering environment](./docs/renderer-env.md#不确定性的渲染环境) into a [deterministic rendering environment](./docs/renderer-env.md#确定性的渲染环境).
 
-这一切的前提由Chrome提供的[确定性渲染模式](https://goo.gle/chrome-headless-rendering)和无头实验API支持：[HeadlessExperimental.beginFrame](https://chromedevtools.github.io/devtools-protocol/tot/HeadlessExperimental/#method-beginFrame)，这是创新的实验性功能 🧪。
+All of this is made possible by Chrome's provided [deterministic rendering mode](https://goo.gle/chrome-headless-rendering) and support for the headless experimental API: [HeadlessExperimental.beginFrame](https://chromedevtools.github.io/devtools-protocol/tot/HeadlessExperimental/#method-beginFrame), This is an innovative experimental function 🧪.
 
-答疑交流QQ群🐧：752693580
-
-<br>
-
-# 特性
-
- - 基于Node.js开发，使用非常简单，易于扩展和开发。
- - 视频处理速度非常快，最快5分钟视频可在1分钟内完成渲染，查看[性能提示](#性能提示)获得最佳性能。
- - 支持单幕和多幕视频渲染合成，多幕视频可应用[转场效果](#插入转场效果)。
- - 支持分块视频合成，可以将分块分发到多个设备上渲染回传再合成为多幕视频，大幅降低长视频渲染耗时。
- - 支持并行多个视频渲染合成任务，充分利用系统资源。
- - 支持嵌入或导出支持透明通道的webm格式视频，可以用于合成数字人。
- - API支持进行[分布式渲染](#分布式渲染方案)封装，只需对WVC进行一些封装即可将大量视频分块分发到多个设备渲染并最终取回合并输出
- - 支持使用GPU加速渲染和合成，可以显著的降低视频渲染耗时。
- - 支持在Windows和Linux平台部署运行，Mac上需要开启[兼容渲染模式](#兼容渲染模式)。
+Q&A and discussion group on QQ🐧: 752693580
 
 <br>
 
-# 有什么用？
+# Features
 
-WVC实现对Web页面任意动画的逐帧完美捕获，它可以最大化降低实现所见即所得的成本，它作为渲染后端目前发掘了以下用途：
-
-**📊 数据可视化视频渲染**：结合ECharts等图表库在Web上实现图表动画并用WVC捕获为视频，比如抖音和视频号常见的动态排行榜视频，配合爬虫采数据更佳。
-
-**👩‍🏫 数字人视频渲染**：AIGC概念火爆，各种数字分身搬上了荧幕，WVC支持在页面中使用透明通道视频或蒙版视频，可以在动画基础上配上数字人获得更好的视觉效果。
-
-**🎨 内容创作视频渲染**：您可以设计一个简单的前端动画编辑和预览器来满足一些内容创作需求，使用WVC作为后端获得所见即所得的视频效果。
-
-**🎮️ 游戏或用户操作回放视频渲染**：与基于Web开发的游戏或应用结合，云上将回放捕获为视频提供给用户可方便分享和二次剪辑。
-
-更多应用场景等待您的发掘，有好的想法记得提issue 🙋‍♀️...
-
-## 相比录屏工具的优势？
-
-**💯 完美捕获**：浏览器的帧合成器默认存在节流策略以减少资源消耗，当绘制大量复杂图形或系统负载加大时会导致Web动画出现跳帧、掉帧、延缓等问题，如果使用录屏工具将难以确保每一帧都被正确捕获，而WVC接管了时间流速，能够决定下一帧什么时候绘制到画面。
-
-**🎞️ 并行渲染**：录屏工具通常无法同时捕获多个Tab页的动画内容，但WVC可以在多个页面中并行捕获动画并最终合成这些分块为一个长视频，分段之间还支持合成转场。
-
-**🦾 可自动化**：录屏工具需要人工操作，基于WVC可以使用一套Web动画模板结合数据爬虫+定时任务，自动的产出视频。
-
-**🧩 快速集成**：录屏工具难以集成，WVC是基于Node.js开发的NPM包，可以很快的进行后端集成，有的开发者用于将游戏回放捕获为视频。
+- Developed using Node.js, it's very easy to use, extend, and develop further.
+- Video processing is incredibly fast, rendering a video as long as 5 minutes can be completed in just 1 minute, Check [Performance Tips](#Performance-Tips) for optimal performance.
+- Supports rendering and compositing of single scenes and multi-scene videos, with the ability to apply transition effects to multi-scene videos.
+- Supports chunked video compositing, allowing chunks to be distributed to multiple devices for rendering, then combined into multi-scene videos, significantly reducing rendering time for long videos.
+- Supports parallel rendering and compositing of multiple video tasks.
+- Support embedding or exporting webm format videos that support transparent channels.
+- API support for [distributed rendering](#distributed-rendering-solution), enabling the distribution of a large number of videos to multiple devices for rendering and final merging output with minimal wrapping of WVC.
+- Supports GPU acceleration for rendering and compositing, reducing video rendering time significantly.
+- Can be deployed and run on both Windows and Linux platforms, On MacOS, it is necessary to enable [Compatible Rendering Mode](#compatible-rendering-mode).
 
 <br>
 
-# 视频DEMO
+# What is it for?
 
-我们还缺少动画设计师，如果您热衷于开源事业欢迎加入我们😆。
+WVC achieves perfect frame-by-frame capture of any animation on a web page. It minimizes the cost of achieving a WYSIWYG (What You See Is What You Get) experience. As a rendering backend, it currently explores the following applications:
 
-在这里查看所有DEMO：**[渲染示例页面](https://github.com/Vinlic/WebVideoCreator/wiki/Rendering-Example)** 🤗
+**📊 Data Visualization Video Rendering**: Combine chart libraries such as ECharts to create animated charts on the web and capture them as videos using WVC. This is useful for creating dynamic ranking videos commonly seen on platforms like TikTok, especially when combined with web scraping for data collection.
+
+**👩‍🏫 Digital Human Video Rendering**: With the popularity of AI-generated characters, various digital avatars appear on screens. WVC supports the use of transparent channel videos or mask videos on web pages, enhancing visual effects by incorporating digital humans into animations.
+
+**🎨 Content Creation Video Rendering**: Design a simple frontend animation editor and previewer to meet content creation needs. Use WVC as the backend to achieve a WYSIWYG video effect.
+
+**🎮️ Game or User Operation Replay Video Rendering**: Integrate with web-based games or applications to capture replays as videos, providing users with easy sharing and secondary editing options.
+
+There are more application scenarios waiting for your exploration, and if you have great ideas, remember to raise an issue 🙋‍♀️...
+
+## Advantages over Screen Recording Tools?
+
+**💯 Perfect Capture**: The browser's frame composer defaults to a throttling strategy to reduce resource consumption. When drawing complex graphics or under increased system load, web animations may experience frame skipping, dropping frames, or delays. Using screen recording tools makes it difficult to ensure that every frame is captured correctly. In contrast, WVC takes control of the timing, determining when to draw the next frame onto the screen.
+
+**🎞️ Parallel Rendering**: Screen recording tools typically cannot capture the animation content of multiple tab pages simultaneously. However, WVC can capture animations in parallel across multiple pages and ultimately combine these chunks into a single long video, with support for seamless transitions.
+
+**🦾 Automation-Friendly**: Screen recording tools require manual operation. With WVC, a set of web animation templates can be combined with data scrapers and scheduled tasks to automate video production.
+
+**🧩 Quick Integration**: Screen recording tools are challenging to integrate. WVC, developed as an NPM package based on Node.js, can be quickly integrated on the backend. Some developers use it to capture game replays as videos.
+
+<br>
+
+# Video Demos
+
+We're also in need of animators! If you're passionate about open source projects, feel free to join us 😆.
+
+Check out all the demos here: **[Rendering Example Page](https://github.com/Vinlic/WebVideoCreator/wiki/Rendering-Example)** 🤗
 
 <img src="assets/demo.gif"/>
 
 <br>
 
-# 支持的动画库
+# Supported Animation Libraries
 
-理论上所有的Web动画/图形库都能够在WVC环境正常运行，以下仅列出我已验证可用的库：
+In theory, all web animation/graphics libraries should work smoothly in the WVC environment. Below, I've listed only the libraries that I have verified to be compatible:
 
 [Anime.js](https://animejs.com/) / [GSAP](https://greensock.com/) / [D3.js](https://d3js.org/) / [Three.js](https://threejs.org/) / [Echart](https://echarts.apache.org/) / [Lottie-Web](http://airbnb.io/lottie/#/web) / [PixiJS](https://pixijs.download/release/docs/index.html) / [Animate.css](https://animate.style/) / [Mo.js](https://mojs.github.io/) / [Tween.js](https://tweenjs.github.io/tween.js/)
 
-需要注意的是，如果您手动使用[RAF](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFrame)驱动动画，请确保从回调中接收timestamp参数设置动画的进度到该时间点，否则可能出现帧率不同步。
+Please note that if you manually use [RAF](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame) to drive animations, ensure that you receive the `timestamp` parameter from the callback to set the animation's progress to that timestamp. Otherwise, frame rate asynchrony may occur.
 
 <br>
 
-# 快速开始
+# Quick Start
 
-## 安装
+## Installation
 
 ```shell
-# 从NPM安装WebVideoCreator
+# Install WebVideoCreator from NPM
 npm i web-video-creator
 ```
 
-如遇到ffmpeg-static下载失败，请先设置环境变量：`FFMPEG_BINARIES_URL=https://cdn.npmmirror.com/binaries/ffmpeg-static`
+If you encounter issues with the download of `ffmpeg-static`, please set the environment variable: `FFMPEG_BINARIES_URL=https://cdn.npmmirror.com/binaries/ffmpeg-static`.
 
-## 创建本地服务器
+## Create a Local Server
 
-WVC需要从Web页面中捕获动画，您可以在本地创建一个临时的Web服务器来提供静态页面服务，方便接下来的测试，使用live-server是最简单的方式之一，如果您已经有静态页面可跳过这个步骤。
+WVC needs to capture animations from web pages, and you can create a temporary web server locally to serve static pages for testing purposes. One of the simplest ways to do this is by using `live-server`. If you already have static web pages, you can skip this step.
 
 ```shell
-# 从NPM全局安装live-server
+# Install live-server globally from NPM
 npm i -g live-server
-# 启用Web服务
+# Start the web server
 live-server
 ```
 
-创建一个测试页面到Web服务根路径，以下html内容展示一个自动旋转的红色三角形svg动画。
+Create a test page in the root directory of the web server. The following HTML content demonstrates an automatically rotating red triangle SVG animation:
 
 ```html
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>测试页面</title>
+        <title>Test Page</title>
     </head>
     <body>
         <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" version="1.1"
@@ -126,7 +124,7 @@ live-server
 </html>
 ```
 
-## 渲染单幕视频
+## Rendering Single Video
 
 <img style="width:550px" src="./assets/single-video.gif" />
 
@@ -135,43 +133,43 @@ import WebVideoCreator, { VIDEO_ENCODER, logger } from "web-video-creator";
 
 const wvc = new WebVideoCreator();
 
-// 配置WVC
+// Configure WVC
 wvc.config({
-    // 根据您的硬件设备选择适合的编码器，这里采用的是Nvidia显卡的h264_nvenc编码器
-    // 编码器选择可参考 docs/video-encoder.md
+    // Choose an appropriate encoder based on your hardware. Here, we are using the h264_nvenc encoder for Nvidia graphics cards.
+    // Encoder selection can refer to docs/video-encoder.md
     mp4Encoder: VIDEO_ENCODER.NVIDIA.H264
 });
 
-// 创建单幕视频
+// Create a single-scene video
 const video = wvc.createSingleVideo({
-    // 需要渲染的页面地址
+    // URL of the page to be rendered
     url: "http://localhost:8080/test.html",
-    // 或者可以直接设置页面内容
+    // or can directly set the page content:
     // content: "<h1>Hello WebVideoCreator</h1>",
-    // 视频宽度
+    // Video width
     width: 1280,
-    // 视频高度
+    // Video height
     height: 720,
-    // 视频帧率
+    // Video frame rate
     fps: 30,
-    // 视频时长
+    // Video duration
     duration: 10000,
-    // 视频输出路径
+    // Output path for the video
     outputPath: "./test.mp4",
-    // 是否在cli显示进度条，默认是不显示
+    // Display progress bar in the command line
     showProgress: true
 });
 
-// 监听合成完成事件
+// Listen for the completion event
 video.once("completed", result => {
     logger.success(`Render Completed!!!\nvideo duration: ${Math.floor(result.duration / 1000)}s\ntakes: ${Math.floor(result.takes / 1000)}s\nRTF: ${result.rtf}`)
 });
 
-// 启动合成
+// Start rendering
 video.start();
 ```
 
-## 渲染多幕视频
+## Rendering Multi Video
 
 <img style="width:550px" src="./assets/multi-video.gif" />
 
@@ -180,29 +178,29 @@ import WebVideoCreator, { VIDEO_ENCODER, TRANSITION, logger } from "web-video-cr
 
 const wvc = new WebVideoCreator();
 
-// 配置WVC
+// Configure WVC
 wvc.config({
-    // 根据您的硬件设备选择适合的编码器，这里采用的是Nvidia显卡的h264_nvenc编码器
-    // 编码器选择可参考 docs/video-encoder.md
+    // Choose an appropriate encoder based on your hardware. Here, we are using the h264_nvenc encoder for Nvidia graphics cards.
+    // Encoder selection can refer to docs/video-encoder.md
     mp4Encoder: VIDEO_ENCODER.NVIDIA.H264
 });
 
-// 创建多幕视频
+// Create a multi-scene video
 const video = wvc.createMultiVideo({
-    // 视频宽度
+    // Video width
     width: 1280,
-    // 视频高度
+    // Video height
     height: 720,
-    // 视频帧率
+    // Video frame rate
     fps: 30,
-    // 视频段参数
+    // Video segment parameters
     chunks: [
         {
             url: "http://localhost:8080/scene-1.html",
-            // 或者可以直接设置页面内容
+            // or can directly set the page content:
             // content: "<h1>Hello WebVideoCreator</h1>",
             duration: 10000,
-            // 在第一和第二幕之间插入转场
+            // Insert a circular crop transition between the first and second scenes
             transition: TRANSITION.CIRCLE_CROP
         },
         {
@@ -210,22 +208,22 @@ const video = wvc.createMultiVideo({
             duration: 10000
         }
     ],
-    // 视频输出路径
+    // Output path for the video
     outputPath: "./test.mp4",
-    // 是否在cli显示进度条，默认是不显示
+    // Display progress bar in the command line
     showProgress: true
 });
 
-// 监听合成完成事件
+// Listen for the completion event
 video.once("completed", result => {
     logger.success(`Render Completed!!!\nvideo duration: ${Math.floor(result.duration / 1000)}s\ntakes: ${Math.floor(result.takes / 1000)}s\nRTF: ${result.rtf}`)
 });
 
-// 启动合成
+// Start rendering
 video.start();
 ```
 
-## 渲染分块视频合并为多幕视频
+## Rendering Chunk Video and Combining into Multi Video
 
 <img style="width:550px" src="./assets/chunk-video.gif" />
 
@@ -234,17 +232,17 @@ import WebVideoCreator, { VIDEO_ENCODER, TRANSITION, logger } from "web-video-cr
 
 const wvc = new WebVideoCreator();
 
-// 配置WVC
+// Configure WVC
 wvc.config({
-    // 根据您的硬件设备选择适合的编码器，这里采用的是Nvidia显卡的h264_nvenc编码器
-    // 编码器选择可参考 docs/video-encoder.md
+    // Choose an appropriate encoder based on your hardware. Here, we are using the h264_nvenc encoder for Nvidia graphics cards.
+    // Encoder selection can refer to docs/video-encoder.md
     mp4Encoder: VIDEO_ENCODER.NVIDIA.H264
 });
 
-// 创建分块视频1
+// Create chunk video 1
 const chunk1 = wvc.createChunkVideo({
     url: "http://localhost:8080/scene-1.html",
-    // 或者可以直接设置页面内容
+    // or can directly set the page content:
     // content: "<h1>Hello WebVideoCreator</h1>",
     width: 1280,
     height: 720,
@@ -253,7 +251,7 @@ const chunk1 = wvc.createChunkVideo({
     showProgress: true
 });
 
-// 创建分块视频2
+// Create chunk video 2
 const chunk2 = wvc.createChunkVideo({
     url: "http://localhost:8080/scene-2.html",
     width: 1280,
@@ -263,42 +261,40 @@ const chunk2 = wvc.createChunkVideo({
     showProgress: true
 });
 
-// 等待分块们渲染完成
+// Wait for the chunks to finish rendering
 await Promise.all([chunk1.startAndWait(), chunk2.startAndWait()]);
 
-// 设置chunk1和chunk2之间的转场效果为淡入淡出
+// Set the transition effect between chunk1 and chunk2 to fade in and out
 chunk1.setTransition({ id: TRANSITION.FADE, duration: 500 });
-// 不设置时长可以直接提供效果ID
-// chunk1.setTransition(TRANSITION.FADE);
 
-// 创建多幕视频
+// Create a multi-scene video
 const video = wvc.createMultiVideo({
     width: 1280,
     height: 720,
     fps: 30,
-    // 视频段
+    // Video segments
     chunks: [
         chunk1,
         chunk2
     ],
-    // 视频输出路径
+    // Output path for the video
     outputPath: "./test.mp4",
-    // 是否在cli显示进度条
+    // Display progress bar in the command line
     showProgress: true
 });
 
-// 监听合成完成事件
+// Listen for the completion event
 video.once("completed", result => {
     logger.success(`Render Completed!!!\nvideo duration: ${Math.floor(result.duration / 1000)}s\ntakes: ${Math.floor(result.takes / 1000)}s\nRTF: ${result.rtf}`)
 });
 
-// 启动合成
+// Start rendering
 video.start();
 ```
 
-## 全局配置
+## Global Configuration
 
-您可以全局配置WVC调整一些通用参数。
+You can globally configure WVC to adjust some common parameters.
 
 ```javascript
 import WebVideoCreator, { VIDEO_ENCODER, AUDIO_ENCODER } from "web-video-creator";
@@ -306,193 +302,184 @@ import WebVideoCreator, { VIDEO_ENCODER, AUDIO_ENCODER } from "web-video-creator
 const wvc = new WebVideoCreator();
 
 wvc.config({
-    // 开启后将输出一些WVC的调试日志
+    // Enable this to output some debug logs from WVC
     debug: true,
-    // 指定使用的Chrome浏览器版本
+    // Specify the Chrome browser version to use
     browserVersion: "...",
-    // 建议开启，如果关闭将显示窗口并且需要启用兼容渲染模式才可正常渲染，仅用于调试画面
+    // It is recommended to enable this. If disabled, the window will be displayed and requires compatibility rendering mode to render properly. It's only used for debugging visuals.
     browserHeadless: true,
-    // 默认开启帧率限制，关闭它可以提高渲染效率并支持高于60fps的动画，但这会关闭GPU垂直同步可能导致画面撕裂或其它问题
+    // Frame rate limit is enabled by default. Disabling it can improve rendering efficiency and support animations above 60fps. However, this might disable GPU vertical sync, potentially causing screen tearing or other issues.
     browserFrameRateLimit: true,
-    // 开启后将输出浏览器的运行日志
+    // Enable this to output browser runtime logs
     browserDebug: true,
-    // 开启后将输出每一条执行的FFmpeg命令
+    // Enable this to output each executed FFmpeg command
     ffmpegDebug: true,
-    // ffmpeg可执行文件路径，设置后将禁用内部的ffmpeg-static，建议您默认使用内部的FFmpeg以确保功能完整性
+    // Path to the FFmpeg executable file; setting this will disable the internal ffmpeg-static; it's recommended to use the internal FFmpeg for completeness
     ffmpegExecutablePath: "...",
-    // ffprobe可执行文件路径，设置后将禁用内部的ffprobe-static，建议您默认使用内部的ffprobe以确保功能完整性
+    // Path to the ffprobe executable file; setting this will disable the internal ffprobe-static; it's recommended to use the internal ffprobe for completeness
     ffprobeExecutablePath: "...",
-    // 浏览器GPU加速开关，建议开启提高渲染性能，如果您没有GPU设备或遭遇了诡异的渲染问题则可以关闭它
+    // Browser GPU acceleration switch; recommended to enable for improved rendering performance; if you don't have a GPU or encounter rendering issues, you can disable it
     browserUseGPU: true,
-    // 浏览器是否使用Angle作为渲染后端，建议开启增强渲染跨平台兼容性和性能
-    browserUseAngle: true,
-    // 是否禁用浏览器使用共享内存，当/dev/shm分区较小时建议开启此选项
-    browserDisableDevShm: false,
-    // 浏览器可执行文件路径，设置后将禁用内部的浏览器，建议您默认使用内部的浏览器以确保功能完整性
+    // Path to the browser executable file; setting this will disable the internal browser; it's recommended to use the internal browser for completeness
     browserExecutablePath: "...",
-    // 浏览器启动超时时间（毫秒），设置等待浏览器启动超时时间
-    browserLaunchTimeout: 30000,
-    // 浏览器协议通信超时时间（毫秒），设置CDP协议通信超时时间
-    browserProtocolTimeout: 180000,
-    // 是否允许不安全的上下文，默认禁用，开启后能够导航到不安全的URL，但由于不安全上下文限制，将无法在页面中使用动态图像和内嵌视频
+    // Allow unsafe contexts, false by default. Once enabled, users can navigate to unsafe URLs, but due to unsafe context restrictions, dynamic images and embedded videos cannot be used on the page
     allowUnsafeContext: false,
-    // 兼容渲染模式，MacOS中需要启用，其它环境不建议启用，启用后将禁用HeadlessExperimental.beginFrame API调用改为普通的Page.screenshot
-    // 这会导致渲染效率下降40%，当你遭遇 TargetCloseError: Protocol error (HeadlessExperimental.beginFrame): Target closed 错误的时候可以尝试开启它
+    // Compatible Rendering Mode is necessary on MacOS but not recommended for other environments; enabling this will disable HeadlessExperimental.beginFrame API calls and use regular Page.screenshot, which can lead to decreased rendering performance and frame rate desynchronization in some animations; you can try enabling it if you encounter the error "TargetCloseError: Protocol error (HeadlessExperimental.beginFrame): Target closed"
     compatibleRenderingMode: false,
-    // 资源池最小浏览器实例数量
+    // Minimum number of browser instances in the resource pool
     numBrowserMin: 1,
-    // 资源池最大浏览器实例数量
+    // Maximum number of browser instances in the resource pool
     numBrowserMax: 5,
-    // 每个浏览器实例最小页面实例数量
+    // Minimum number of page instances per browser instance
     numPageMin: 1,
-    // 每个浏览器实例最大页面实例数量
+    // Maximum number of page instances per browser instance
     numPageMax: 5,
-    // 访问页面时的用户UA
+    // User-agent string to use when accessing pages
     userAgent: null,
-    // 捕获帧图质量（0-100），仅jpeg有效
+    // Frame capture quality (0-100); only effective for jpeg
     frameQuality: 80,
-    // 帧图格式（jpeg/png），建议使用jpeg，png捕获较为耗时
+    // Frame image format (jpeg/png); it's recommended to use jpeg as png capture is more time-consuming
     frameFormat: "jpeg",
-    // BeginFrame捕获图像超时时间
+    // Timeout for capturing images with BeginFrame
     beginFrameTimeout: 5000,
-    // MP4格式的视频编码器，默认使用libx264软编码器，建议根据您的硬件选用合适的硬编码器加速合成，编码器选择可参考 docs/video-encoder.md
+    // Video encoder for MP4 format; by default, it uses the libx264 software encoder; it's recommended to choose the appropriate hardware encoder for acceleration based on your hardware, Encoder selection can refer to docs/video-encoder.md.
     mp4Encoder: VIDEO_ENCODER.CPU.H264,
-    // WEBM格式的视频编码器，默认使用libvpx软编码器，建议根据您的硬件选用合适的硬编码器加速合成
+    // Video encoder for WEBM format; by default, it uses the libvpx software encoder; it's recommended to choose the appropriate hardware encoder for acceleration based on your hardware
     webmEncoder: VIDEO_ENCODER.CPU.VP8,
-    // 音频编码器，建议采用默认的aac编码器
+    // Audio encoder; it's recommended to use the default AAC encoder
     audioEncoder: AUDIO_ENCODER.AAC
 });
 ```
 
-## 插入音频
+## Inserting Audio
 
-只需在需要渲染的html中添加 `<audio>` 元素，您还可以设置循环，WVC会自动为视频合入循环音轨。
+To add audio to your rendered HTML, simply include an `<audio>` element with the desired audio file. You can also set attributes like `loop`, and WVC will automatically include the audio track for looping in the video.
 
 ```html
 <audio src="bgm.mp3" loop></audio>
 ```
 
-还可以设置一些其它属性控制音频的行为，这些属性并不总是需要成对出现，您可以根据自己的需求定制。
+You can also set various attributes to control the audio's behavior. These attributes do not always need to be paired, so you can customize them according to your needs.
 
 ```html
-<!-- 控制音频音量为原来的一半 -->
+<!-- Control the audio volume to half the original level -->
 <audio src="bgm.mp3" volume="0.5"></audio>
-<!-- 控制音频在3秒后开始播放并在10秒处停止播放 -->
+<!-- Start playing the audio after 3 seconds and stop it at 10 seconds -->
 <audio src="bgm.mp3" startTime="3000" endTime="10000"></audio>
-<!-- 截取音频第5秒到第15秒的片段并循环播放它 -->
+<!-- Loop a segment of the audio from the 5th second to the 15th second -->
 <audio src="bgm.mp3" seekStart="5000" seekEnd="15000" loop></audio>
-<!-- 控制音频300毫秒淡入且500毫秒淡出 -->
+<!-- Apply a 300ms fade-in and 500ms fade-out to the audio -->
 <audio src="bgm.mp3" fadeInDuration="300" fadeOutDuration="500"></audio>
 ```
 
-在代码中添加和移除 `<audio>` 元素来实现音频出入场也是被允许的，WVC将检测到它们。
+You can also dynamically add and remove `<audio>` elements in your code to control audio entering and exiting the scene. WVC will detect them.
 
 ```javascript
 const audio = document.createElement("audio");
 audio.src = "bgm.mp3";
-// 音频在视频第3秒入场
+// Audio enters the scene at 3 seconds
 setTimeout(() => document.body.appendChild(audio), 3000);
-// 音频在视频第8秒出场
+// Audio exits the scene at 8 seconds
 setTimeout(() => audio.remove(), 8000);
 ```
 
-或者在页面中调用 [captureCtx.addAudio](./docs/capture-ctx.md#capturecontextaddaudiooptions-object) 添加音频到视频中。
+Or call [captureCtx.addAudio](./docs/capture-ctx.md#capturecontextaddaudiooptions-object) on the page to add audio to the video.
 
 ```javascript
-// 添加单个音频
+// Add a single audio track
 captureCtx.addAudio({
     url: "bgm.mp3",
     startTime: 500,
     loop: true,
-    // 80%的音量
+    // 80% volume
     volume: 80
 });
-// 添加多个音频
+// Add multiple audio tracks
 captureCtx.addAudios([...]);
 ```
 
-也可以在WVC中直接使用 [addAudio](./docs/api-reference-high-level.md#singlevideoaddaudiooptions-object) 将本地或远程的音频添加到视频中。
+You can also directly use [addAudio](./docs/api-reference-high-level.md#singlevideoaddaudiooptions-object) in WVC to add local or remote audio to the video.
 
 ```javascript
 const video = wvc.createSingleVideo({ ... });
-// 添加单个音频
+// Add a single audio track
 video.addAudio({
     // url: "http://.../bgm.mp3"
     path: "bgm.mp3",
     startTime: 500,
     loop: true,
-    // 80%的音量
+    // 80% volume
     volume: 80
 });
-// 添加多个音频
+// Add multiple audio tracks
 video.addAudios([...]);
 ```
 
-这样的操作同样适用于 MultiVideo 和 ChunkVideo 。
+This operation also applies to MultiVideo and ChunkVideo.
 
-## 插入视频
+## Inserting Video
 
-目前支持 `mp4` 和 `webm` 格式的视频，只需在需要渲染的html中添加 `<video>` 元素，您可以设置循环和静音，如果您的src不包含 `.mp4` 后缀名可能无法被识别，请添加 `capture` 属性标识为需要捕获的元素。
+Currently, WVC supports `mp4` and `webm` video formats. To insert a video into your rendered HTML, include a `<video>` element with the desired video file. You can set attributes like `loop` and `muted`. If your src does not contain the `. mp4` suffix name, it may not be recognized. Please add the `capture` attribute to identify the element that needs to be captured.
 
 ```html
-<video src="background.mp4" loop muted></video>
+<video src="background.mp4" loop muted></video
 ```
 
-如果希望插入透明通道的视频请见：[透明通道视频](#透明通道视频)，对视频帧率同步或透明视频绘制感兴趣可以参考：[技术实现](#技术实现)。
+If you wish to insert a video with a transparent channel, see: [Transparent Channel Videos](#transparent-channel-videos). If you are interested in video frame rate synchronization or transparent video rendering, you can refer to: [Technical Implementation](#technical-implementation).
 
-和音频一样，它也支持设置一些属性控制视频的行为，这些属性并不总是需要成对出现，您可以根据自己的需求定制。
+Similar to audio, you can set various attributes to control the video's behavior, and these attributes do not always need to be paired.
 
 ```html
-<!-- 控制音频音量为原来的70% -->
+<!-- Control the audio volume to 70% of the original -->
 <video src="test.mp4" volume="0.7"></video>
-<!-- 控制视频在3秒后开始播放并在10秒处停止播放 -->
+<!-- Start playing the video after 3 seconds and stop it at 10 seconds -->
 <video src="test.mp4" startTime="3000" endTime="10000"></video>
-<!-- 截取视频第5秒到第15秒的片段并循环播放它 -->
+<!-- Loop a segment of the video from the 5th second to the 15th second -->
 <video src="test.mp4" seekStart="5000" seekEnd="15000" loop></video>
-<!-- 控制视频的音频在300毫秒淡入且500毫秒淡出 -->
+<!-- Apply a 300ms fade-in and 500ms fade-out to the video -->
 <video src="test.mp4" fadeInDuration="300" fadeOutDuration="500"></video>
 ```
 
-在代码中添加和移除 `<video>` 元素来实现视频出入场也是被允许的，WVC将检测到它们。
+You can dynamically add and remove `<video>` elements in your code to control video entering and exiting the scene. WVC will detect them.
 
 ```javascript
 const video = document.createElement("video");
 video.src = "test.mp4";
-// 视频在第3秒入场
+// Video enters the scene at 3 seconds
 setTimeout(() => document.body.appendChild(video), 3000);
-// 视频在第8秒出场
+// Video exits the scene at 8 seconds
 setTimeout(() => video.remove(), 8000);
 ```
 
-如果您正在使用一些前端框架实现动画内容，WVC可能无法监听到您对 `<video>` 元素的改动（比如隐藏或显示），请将元素更换为 `<canvas video-capture>` 元素，通过 `video-capture` 属性提示WVC注意到它是一个视频画布。
+If you are using some front-end frameworks to implement animation content, WVC may not be able to listen to your changes to the `<video>` element (such as hiding or displaying). Please replace the element with the `<canvas video-capture>` element and prompt WVC to notice that it is a video canvas through `video-capture` attribute.
 
 ```html
 <canvas src="test.mp4" video-capture></canvas>
 ```
 
-### 透明通道视频
+### Transparent Channel Videos
 
-透明视频非常适合用于将vtuber数字人合成到视频画面中，结合精美的动画可以获得非常好的观看体验，合成效果请参考 **[渲染示例页面](https://github.com/Vinlic/WebVideoCreator/wiki/Rendering-Example)** 最后一个Demo。
+Transparent videos are great for compositing digital avatars (e.g., VTubers) into video scenes. Please refer to **[Rendering Example Page](https://github.com/Vinlic/WebVideoCreator/wiki/Rendering-Example)** Last Demo
 
-透明通道视频格式需为 `webm` ，在内部它会被重新编码为两个mp4容器的视频，分别是原色底视频和蒙版视频后在浏览器canvas中使用进行 `globalCompositeOperation` 进行图像混合并绘制。
+In WVC, transparent videos should be in the `webm` format. Internally, they will be re-encoded into two mp4 container videos: one for the color base video and one for the mask video. These videos will be used for blending and drawing using the `globalCompositeOperation` in the browser canvas.
 
-对于使用者是无感的，像下面代码演示中那样，只需需要渲染的html中添加 `<video>` 元素，并设置src为webm格式视频地址即可。
+For users, it's seamless. You just need to include a `<video>` element in your HTML with the `src` set to the webm video file.
 
 ```html
 <video src="vtuber.webm"></video>
 ```
 
-webm编解码通常比较耗时，如果您可以直接获得原始mp4视频和蒙版mp4视频是更好的方案，只需增加设置maskSrc即可。
+Webm encoding and decoding can be time-consuming. If you can obtain the original mp4 video and the mask mp4 video, it's a better solution. Just add the `maskSrc` attribute.
 
 ```html
 <video src="vtuber.mp4" maskSrc="vtuber_mask.mp4"></video>
 ```
 
-## 插入动态图像
+## Inserting Animated Images
 
-动态图像指的是 `gif` / `apng` / `webp` 格式的序列帧动画，他们可以在浏览器中自然播放，帧率通常是不可控的，但WVC代理了它们的绘制，img元素被替换为canvas并通过ImageDecoder解码绘制每一帧，让序列帧动画按照虚拟时间同步绘制。
+Animated images refer to sequence frame animations in `gif` / `apng` / `webp` formats. They can naturally play in the browser, but their frame rate is usually uncontrollable. WVC proxies their rendering, replacing `img` elements with `canvas` elements, and uses ImageDecoder to decode and draw each frame in sync with virtual time.
 
-以下这些动图都能够正常绘制，您也可以照常给他们设置样式。
+The following animated images can be rendered as well, and you can style them as usual.
 
 ```html
 <img src="test.gif"/>
@@ -500,31 +487,31 @@ webm编解码通常比较耗时，如果您可以直接获得原始mp4视频和�
 <img src="test.webp"/>
 ```
 
-如果您正在使用一些前端框架实现动画内容，WVC可能无法监听到您对 `<img>` 元素的改动（比如隐藏或显示），请将元素更换为 `<canvas dyimage-capture>` 元素，通过 `dyimage-capture` 属性提示WVC注意到它是一个动态图像画布。
+If you are using some front-end frameworks to implement animation content, WVC may not be able to listen to your changes to the `<img>` element (such as hiding or displaying). Please replace the element with the `<canvas dyimage-capture>` element and prompt WVC to notice that it is a dyanmic image canvas through `dyimage-capture` attribute.
 
 ```html
 <canvas src="test.gif" dyimage-capture></canvas>
 ```
 
-## 插入Lottie动画
+## Inserting Lottie Animations
 
-WVC已经内置 [lottie-web](http://airbnb.io/lottie/#/web) 动画库，如果您的页面有自己实现的lottie动效则可以忽略本内容，因为它们也能够正常工作。
+WVC comes with the built-in [lottie-web](http://airbnb.io/lottie/#/web) animation library. If you have your own Lottie animations in your web page, they should work seamlessly with WVC.
 
-只需要插入一个 `<lottie>` 元素并设置src即可。
+Simply insert a `<lottie>` element and set the `src` attribute.
 
 ```html
 <lottie src="example.json"></lottie>
 ```
 
-如果您正在使用一些前端框架实现动画内容，WVC可能无法监听到您对 `<lottie>` 元素的改动（比如隐藏或显示），请将元素更换为 `<canvas lottie-capture>` 元素，通过 `lottie-capture` 属性提示WVC注意到它是一个Lottie画布。
+If you are using some front-end frameworks to implement animation content, WVC may not be able to listen to your changes to the `<lottie>` element (such as hiding or displaying). Please replace the element with the `<canvas lottie-capture>` element and prompt WVC to notice that it is a lottie canvas through `lottie-capture` attribute.
 
 ```html
 <canvas src="example.json" lottie-capture></canvas>
 ```
 
-## 应用字体
+## Applying Fonts
 
-WVC能够检测样式表中的 `@font-face` 声明并等待字体加载完成再开始渲染。
+WVC can detect `@font-face` declarations in stylesheets and wait for the fonts to load before starting rendering.
 
 ```html
 <style>
@@ -536,28 +523,28 @@ WVC能够检测样式表中的 `@font-face` 声明并等待字体加载完成再
 <p style='font-family: "FontTest"'>Hello World</p>
 ```
 
-或者，可以通过代码注册本地或远程的字体。
+Alternatively, you can register local or remote fonts through code.
 
 ```javascript
 const video = wvc.createSingleVideo({ ... });
-// 注册单个字体
+// Register a single font
 video.registerFont({
     // url: "http://.../font.ttf"
     path: "font.ttf",
     family: "FontTest",
     format: "truetype"
 });
-// 注册多个字体
+// Register multiple fonts
 video.registerFonts([...]);
 ```
 
-您需要确保字体能够正常加载，否则可能无法启动渲染。
+Make sure the fonts can be loaded; otherwise, rendering may not start.
 
-## 插入转场效果
+## Inserting Transition Effects
 
-WVC支持使用FFmpeg所支持的 [Xfade](https://trac.ffmpeg.org/wiki/Xfade) 滤镜来合成转场效果，可参考[转场列表](./docs/transition.md)、
+WVC supports the use of [Xfade](https://trac.ffmpeg.org/wiki/Xfade) filters supported by FFmpeg to create transition effects. You can refer to the [list of transitions](./docs/transition.md).
 
-每个分块视频参数都能够设置转场效果和持续时长。
+Each chunk video parameter can be configured with a transition effect and its duration.
 
 ```javascript
 import WebVideoCreator, { TRANSITION } from "web-video-creator";
@@ -566,17 +553,17 @@ import WebVideoCreator, { TRANSITION } from "web-video-creator";
 
 const video = wvc.createMultiVideo({
     ...
-    // 视频段参数
+    // Video segment parameters
     chunks: [
         {
             url: "http://localhost:8080/scene-1.html",
             duration: 10000,
-            // 在第一和第二幕之间插入淡入淡出转场
+            // Insert a fade in/out transition between the first and second scenes
             transition: {
                 id: TRANSITION.FADE,
                 duration: 500
             },
-            // 如果不需要设置时长也可以直接设置转场ID
+            // If you don't need to set the duration, you can directly set the transition ID
             // transition: TRANSITION.FADE
         },
         {
@@ -590,25 +577,27 @@ const video = wvc.createMultiVideo({
 ...
 ```
 
-需要注意的是，应用转场会导致视频总时长缩短，转场效果实际上是两段视频的部分重叠，两段5秒的视频插入转场，会合成时长为9秒的视频。
+It's important to note that applying transitions will result in a shorter total video duration since the transition effect effectively overlaps a portion of two video segments. For example, if you insert a fade transition between two 5-second segments, the resulting video will have a duration of 9 seconds.
 
-Lottie动画也很适合作为转场效果，您可以在一段视频的尾部播放一半时长的全屏Lottie动画，然后在下一段视频开头播放另一半时长的全屏Lottie动画实现更动感的转场效果。
+Lottie animations are also suitable for use as transition effects. You can play a full-screen Lottie animation for half of the duration at the end of one video segment and then play another full-screen Lottie animation for the remaining half at the beginning of the next video segment to create more dynamic transition effects.
 
-## 导出具有透明通道的视频
+## Export videos with transparent channels
 
-WVC支持您设置背景的不透明度 `backgroundOpacity` 选项实现透明或半透明背景视频的输出，它的值范围是**0-1**，请确保输出视频文件后缀名或format选项为 **webm**。
+WVC supports you to set the background opacity `backgroundOpacity` option to achieve transparent or semi transparent background video output, with a value range of **0-1**, Please ensure that the output video path suffix name or format option is **webm**.
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 设置完全透明的背景
+    // Set a completely transparent background
     backgroundOpacity: 0
 });
 ```
 
-## 延迟启动渲染
+## Delayed Rendering Start
 
-WVC默认页面导航完成后立即启动渲染，如果希望在渲染之前进行一些工作，可以在选项中禁用自动启动渲染，禁用后请记得在您的页面中调用 [captureCtx.start()](./docs/capture-ctx.md#capturecontextstart)，否则将永远阻塞。
+By default, WVC starts rendering immediately after the page navigation is complete. If you
+
+ want to perform some tasks before rendering, you can disable automatic rendering start in the options. In this case, remember to call [captureCtx.start()](./docs/capture-ctx.md#capturecontextstart) in your page code, or rendering will be blocked indefinitely.
 
 ```javascript
 const video = wvc.createSingleVideo({
@@ -616,11 +605,13 @@ const video = wvc.createSingleVideo({
     width: 1280,
     height: 720,
     duration: 10000,
-    // 禁用自动启动渲染
+    // Disable automatic rendering start
     autostartRender: false
 });
 ```
-页面代码中，在您觉得合适的时机调用启动。
+
+In your page code, call the start function when appropriate.
+
 ```html
 <script>
     // 数据加载完成后启动渲染
@@ -630,24 +621,26 @@ const video = wvc.createSingleVideo({
 </script>
 ```
 
-## 在指定时间点开始捕获
+<br>
 
-WVC默认在渲染启动后从第0秒位置开始捕获画面，但也支持您从其它时间点开始捕获。
+## Start Capturing at a Specified Time Point
+
+By default, WVC begins capturing the screen from the 0 time point after rendering starts. However, it also supports initiating screen capture from other time points.
 
 ```javascript
 const video = wvc.createSingleVideo({
     url: "http://localhost:8080/test.html",
     width: 1280,
     height: 720,
-    // 从第5秒位置开始捕获画面
+    // Start capturing from the 5-second mark
     startTime: 5000,
     duration: 10000
 });
 ```
 
-## 启动渲染前操作页面
+<br>
 
-WVC允许在渲染前您对页面进行处理，比如点击播放按钮。
+## Pre-render Page Operations
 
 ```javascript
 const video = wvc.createSingleVideo({
@@ -656,17 +649,17 @@ const video = wvc.createSingleVideo({
     height: 720,
     duration: 10000,
     pagePrepareFn: async page => {
-        // 获取puppeteer Page对象
+        // Get the puppeteer Page object
         const _page = page.target;
-        // 点击按钮
+        // Click the button
         await _page.tap("#play-button");
     }
 });
 ```
 
-## 使用动作序列
+## Using Action Sequences
 
-WVC支持您设置某个时间点执行的动作，它可以方便的在视频的任意时间点对页面进行操作，以下代码用于在视频的第3、6、9秒处执行滚动。
+WVC allows you to set actions to be executed at specific time points within a video. This feature enables convenient manipulation of a page at arbitrary intervals within a video. The following code is used to perform scrolling at the 3rd, 6th, and 9th seconds of the video.
 
 ```javascript
 const actionFn = async (page) => {
@@ -685,7 +678,7 @@ const video = wvc.createSingleVideo({
     outputPath: "./t2.mp4",
     showProgress: true,
     url: "https://www.bilibili.com/v/popular/all/",
-    // 设置动作序列
+    // Setting up the action sequence
     timeActions: {
         3000: actionFn,
         6000: actionFn,
@@ -695,146 +688,146 @@ const video = wvc.createSingleVideo({
 });
 ```
 
-## 页面控制台输出
+## Page Console Output
 
-如果想看到页面的日志，可在视频选项中开启consoleLog。开启videoPreprocessLog将输出内嵌视频预处理日志。
+If you want to see the page's logs, you can enable `consoleLog` in the video options. If there are embedded videos, you can also enable `videoPreprocessLog` to output video preprocessing logs.
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 输出页面控制台打印的日志
+    // Output logs from the page's console
     consoleLog: true,
-    // 输出内嵌视频预处理日志
+    // Output video preprocessing logs for embedded videos
     videoPreprocessLog: true
 });
 ```
 
-## 截取封面图
+## Capture a Cover Image
 
-合成视频后可以截取某一帧图像并保存，可以作为视频封面图。
+After rendering a video, you can capture a frame image and save it, which can be used as the video's cover image.
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 是否截取图像
+    // Enable cover image capture
     coverCapture: true,
-    // 图像截取时间点（毫秒），默认是视频时长的20%位置）
+    // Time in milliseconds to capture the image (default is 20% of the video's duration)
     coverCaptureTime: 1000,
-    // 图像保存格式（jpg/png/bmp），默认jpg
+    // Image format for capture (jpg/png/bmp), default is jpg
     coverCaptureFormat: "jpg"
 });
 ```
 
-## 插入封面图
+## Insert a Cover Image
 
-WVC支持往视频的首帧插入图像，当视频未被播放时将展示首帧图像。
+WVC supports inserting an image into the first frame of the video, which will be displayed when the video is not playing.
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 设置附加的封面图地址，支持jpg/png/bmp
+    // Set the path to the additional cover image, supports jpg/png/bmp
     attachCoverPath: "./cover.jpg"
 });
 ```
 
-## 调整视频音量
+## Adjust Video Volume
 
-您可以控制输出视频的总音量。
+You can control the overall volume of the output video.
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 设置视频音量为原来的80%
+    // Set the video volume to 80% of the original
     volume: 80
 });
 ```
 
-## 控制输出视频质量
+## Control Output Video Quality
 
-WVC支持通过 `videoQuality` 或 `videoBitrate` 控制视频图像质量。
+WVC allows you to control video image quality using `videoQuality` or `videoBitrate`.
 
-videoQuality是通过图像总像素量简单计算码率，以下WVC内计算视频码率方法。
+`videoQuality` is used to calculate the bitrate based on the total pixel count of the image. The following is the method used by WVC to calculate the video bitrate internally:
 
 ```javascript
 const pixels = width * height;
 const videoBitrate = (2560 / 921600 * pixels) * (videoQuality / 100);
 ```
 
-可以在视频选项中提供videoQuality（0-100）
+You can provide `videoQuality` (0-100) in the video options:
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 设置视频质量为80%
+    // Set video quality to 80%
     videoQuality: 80
 });
 ```
 
-如果您认为码率不合适，可以单独设置videoBitrate。
+If you find the bitrate inappropriate, you can set `videoBitrate` separately:
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 设置视频码率为8Mbps
+    // Set video bitrate to 8Mbps
     videoBitrate: "8192k"
 });
 ```
 
-另外还可以调整帧图质量，当使用jpeg作为帧图格式时可以调整frameQuality，详见 [全局配置](#全局配置)。
+Additionally, you can adjust the frame image quality when using jpeg as the frame format by setting `frameQuality`. For details, see [Global Configuration](#global-configuration).
 
-音频质量则可以通过设置音频码率audioBitrate调整。
+You can also adjust audio quality by setting the audio bitrate `audioBitrate`:
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 设置音频码率为320Kbps
+    // Set audio bitrate to 320Kbps
     audioBitrate: "320k"
 });
 ```
 
-## 修改像素格式
+## Change Pixel Format
 
-WVC目前支持输出 `yuv420p` / `yuv444p` / `rgb24` 像素格式的视频，默认采用兼容性更好的 yuv420p ，如果您发现输出的视频与页面的颜色有较大的差异，可以切换为 rgb24 改善这个问题。
+WVC currently supports output in `yuv420p`, `yuv444p`, and `rgb24` pixel formats. It defaults to using the more compatible `yuv420p`. If you notice significant color differences between the output video and the original page, you can switch to `rgb24` to improve the issue.
 
 ```javascript
 const video = wvc.createSingleVideo({
     ...,
-    // 设置像素格式为rgb24
+    // Set the pixel format to rgb24
     pixelFormat: "rgb24"
 });
 ```
 
 <br>
 
-# 视频编码器选择
+# Video Encoder Selection
 
-浏览器渲染输出帧图流输入FFmpeg时需要通过视频编码器将图像数据按指定帧率编码为视频数据并存储于指定格式容器中，视频编码是一项较为消耗资源的操作，选用硬编码器可以加速这个过程并降低CPU的负载。
+When rendering frames from the browser and feeding them into FFmpeg, it's necessary to encode the image data at the specified frame rate and store it in a specified format container using a video encoder. Video encoding is a resource-intensive operation, and choosing a hardware encoder can accelerate this process and reduce CPU load.
 
-WVC支持的视频编码器请参考：[视频编码器说明](./docs/video-encoder.md)
+Please refer to the [Video Encoder Guide](./docs/video-encoder.md) for a list of supported video encoders by WVC.
 
 <br>
 
-# 进度监听
+# Progress Monitoring
 
-您可以通过视频实例的 `progress` 事件监听渲染合成进度。
+You can use the `progress` event of the video instance to monitor the rendering and synthesis progress.
 
 ```javascript
 const video = wvc.createSingleVideo({ ... });
 video.on("progress", (progress, synthesizedFrameCount, totalFrameCount) => {
-    // 输出 进度 / 已合成帧数 / 总帧数
+    // Output progress / synthesized frame count / total frame count
     console.log(progress, synthesizedFrameCount, totalFrameCount);
 });
 ```
 
-这同样适用于 `MultiVideo` / `ChunkVideo` 以及低级别API的合成器。
+This also applies to `MultiVideo` / `ChunkVideo` and the synthesisers in the low-level API.
 
 <br>
 
-# 异常处理
+# Exception Handling
 
-## 抛出错误
+## Throwing Errors
 
-您可以在页面中主动抛出错误来中断渲染。
+You can actively throw errors in the page to interrupt rendering.
 
 ```html
 <script>
@@ -842,146 +835,150 @@ video.on("progress", (progress, synthesizedFrameCount, totalFrameCount) => {
 </script>
 ```
 
-## 监听页面崩溃
+## Listening for Page Crashes
 
-如果您的页面存在大量密集计算或者占用过多的运行内存，页面将可能崩溃，从而导致渲染中断。
+If your page involves heavy computations or consumes excessive memory, it may crash, causing rendering to be interrupted.
 
-如果使用高级别API，页面崩溃时通过视频实例的 `pageCrashed` 事件通知。
+If you're using the high-level API, you can be notified of page crashes through the `pageCrashed` event of the video instance.
 
 ```javascript
 const video = wvc.createSingleVideo({ ... });
-// 错误时输出崩溃错误
+// Output crash errors when an error occurs
 video.on("pageCrashed", err => console.error(err));
 ```
 
-使用低级别API时，页面崩溃时通过Page实例的 `crashed` 事件通知
+When using the low-level API, you can listen for page crashes through the `crashed` event of the Page instance.
 
 ```javascript
-// 错误时输出崩溃错误
+// Output crash errors when an error occurs
 page.on("crashed", err => console.error(err));
 ```
 
-## 监听其它错误
+## Listening for Other Errors
 
-如果使用高级别API，页面崩溃时通过视频实例的 `error` 事件通知。
+If you're using the high-level API, you can listen for errors through the `error` event of the video instance.
 
 ```javascript
 const video = wvc.createSingleVideo({ ... });
 video.on("error", err => console.error(err));
 ```
 
-使用低级别API时，页面崩溃时通过Page实例的 `error` 事件通知
+When using the low-level API, you can listen for errors through the `error` event of the Page instance.
 
 ```javascript
 page.on("error", err => console.error(err));
 ```
 
-## 兼容渲染模式
+## Compatible Rendering Mode
 
-MacOS上由于Chrome不支持BeginFrame API，需要更改为兼容渲染模式才能正常工作，此模式会导致渲染效率下降40%左右，建议部署在Windows或Linux设备上以获得更佳的性能。
+On MacOS, due to Chrome's lack of support for the BeginFrame API, it is necessary to switch to the compatible rendering mode for proper functionality. This mode may result in a decrease in rendering efficiency of around 40%. It is recommended to deploy on Windows or Linux devices for better performance.
 
 ```javascript
-// 启用兼容渲染模式
+// Enable compatible rendering mode
 wvc.config({ compatibleRenderingMode: true });
 ```
 
 <br>
 
-# 缓存管理
+# Cache Management
 
-为了优化任务启动和渲染耗时，WVC一般会存在四部分缓存，分别是 `浏览器缓存` `预处理缓存` `合成缓存` `本地字体缓存`。
+To optimize task launching and rendering time, WVC generally maintains four types of caches: `Browser Cache`, `Preprocess Cache`, `Synthesize Cache`, and `Local Font Cache`.
 
-**浏览器缓存**：由页面产生的缓存文件和记录，此缓存使得页面加载耗时更短。
+**Browser Cache**: Contains cached files and records generated by the page, reducing page loading time.
 
-**预处理缓存**：当渲染内容引用了远程资源时，预处理器会尝试拉取并缓存在本地，以减少带宽消耗。
+**Preprocess Cache**: When rendering content references remote resources, the preprocessor attempts to fetch and cache them locally, reducing bandwidth consumption.
 
-**合成缓存**：合成多个视频分块为整体时，预先渲染的分块将会作为合成缓存，一般情况下，WVC会在合成完毕后清除这一部分的缓存。
+**Synthesize Cache**: When combining multiple video chunks into a whole, pre-rendered chunks serve as the synthesize cache. Typically, WVC clears this cache after synthesis is complete.
 
-**本地字体缓存**：当使用 `registerFonts` 注册本机字体时，为了将字体成功注入页面，我们会将来源路径的字体复制一份到缓存中。
+**Local Font Cache**: When using `registerFonts` to register local fonts for successful injection into the page, a copy of fonts from the source path is stored in the cache.
 
-## 清除缓存
+## Clearing Cache
 
 ```javascript
-// 清除浏览器缓存
+// Clear browser cache
 wvc.cleanBrowserCache();
-// 清除预处理缓存
+// Clear preprocess cache
 wvc.cleanPreprocessCache();
-// 清除合成缓存
+// Clear synthesize cache
 wvc.cleanSynthesizeCache();
-// 清除本地字体缓存
+// Clear local font cache
 wvc.cleanLocalFontCache();
 ```
 
 <br>
 
-# API参考
+# API Reference
 
-## 高级别API
+## High-Level API
 
-大部分时候，建议使用高级别API，因为它足够的简单，但可能不够灵活。
+In most cases, it is recommended to use the high-level API because it is simple but may be less flexible.
 
 [API Reference High Level](./docs/api-reference-high-level.md)
 
-## 低级别API
+## Low-Level API
 
 [API Reference Low Level](./docs/api-reference-low-level.md)
 
 <br>
 
-# 分布式渲染方案
+# Distributed Rendering
 
-如果您有多台设备可以为这些设备部署WVC，它提供了 `MultiVideo` 和 `ChunkVideo`，您可以将动画页面分为很多个分段，如0-10秒、10-20秒...，将它们的参数分发到不同设备的WVC上，在这些设备上创建ChunkVideo实例并执行并行渲染为多个视频 `ts` 分段，将他们回传到核心节点上，并最终输入MultiVideo进行合并以及转场、音轨合成输出。**这个分发以及回传流程WVC还未实现，但它并不难，您可以根据自己的场景进行封装并欢迎为WVC贡献[PR](https://github.com/Vinlic/WebVideoCreator/pulls)！**
-
-<br>
-
-# 性能提示
-
-性能通常受动画和媒体的复杂程度影响，您可以将长时间动画分为多个分段动画播放，比如为每个页面地址带一个seek参数，加载页面后seek到指定时间点开始播放，然后作为多幕视频进行渲染合成，可以显著的降低长视频的渲染耗时。
-
-- 并行更多的视频块渲染，如果希望榨干系统资源，在确保系统内存充足的情况下并行数选定为CPU的线程数
-- CPU主频对于基准速度影响较大，通常消费级CPU主频很高，可以获得更佳的性能。
-- 建议使用GPU加速渲染和合成，如果您设备有GPU但没有被使用，请检查配置项或报告问题。
-- 采用SSD（固态硬盘）可以提升并行渲染时的硬盘缓存写入性能从而降低渲染耗时。
-- 选择正确的视频硬编码器很重要，默认采用的是软编码器（mp4是libx264，webm是libvpx），如果您有核显或者独显请记得配置他们支持的硬编码器。
-- 有些耗时可能来自于网络文件传输，建议将静态文件服务部署于同一台服务器或从局域网访问文件服务器。
-- 降低输出视频分辨率和帧率是降低耗时最有效的方法。
-
----
-
-目前手上没有更好的测试设备，我将以我的个人主机的性能参数作为参考：
-
-系统：Windows10（在Linux系统中性能表现更好）
-
-CPU: AMD Ryzen 7 3700X（主频3.6-4.4GHz 8核16线程）
-
-GPU: Nvidia GeForce GTX 1660 SUPER（6GB显存 支持NVENC）
-
-RAM: 16GB（DDR4 2400MHz）
-
-视频类型：SVG动画+GIF+Lottie动画播放
-
-视频分辨率：1280x720
-
-视频帧率：30
-
-视频时长：300s（5分钟）
-
-渲染耗时：61s（1分钟）
-
-实时率：4.844
-
-并行渲染数：16
-
----
+If you have multiple devices available for rendering, you can deploy WVC on these devices. WVC provides `MultiVideo` and `ChunkVideo`, allowing you to divide the animation pages into many segments (e.g., 0-10 seconds, 10-20 seconds, etc.). Distribute their parameters to different WVC instances on different devices, create ChunkVideo instances on these devices, and execute parallel rendering to generate multiple video segments (`ts`). These segments are then sent back to the core node, where they are combined, and transitions, audio tracks, and output are handled. **The distribution and return process is not yet implemented in WVC, but it is not difficult, and you can wrap it according to your own scenario. Contributions to WVC are welcome through [PR](https://github.com/Vinlic/WebVideoCreator/pulls)!**
 
 <br>
 
-# 局限性
+# Performance Tips
 
-- 受制于浏览器的[安全上下文限制](https://w3c.github.io/webappsec-secure-contexts/)，只能访问 localhost / 127.0.0.1 或者使用HTTPS协议且证书有效的域，从安全角度考虑建议使用本机静态服务器（live-server是一个不错的选择），也可以使用content选项直接设置页面内容从而避开url限制。
+Performance is typically influenced by the complexity of animations and media. To improve performance:
 
-- 在Mac系统中使用无头实验API在会发生崩溃，需要改为兼容渲染模式才能运行，但兼容渲染模式存在诸多问题，不建议在Mac系统使用，详见[兼容渲染模式](#兼容渲染模式)
+- Divide long animations into multiple segments. For instance, you can include a seek parameter with each page URL, load the page, and seek to a specified time to start playing. Then, render and combine them as a multi-video to significantly reduce rendering time for long videos.
 
-- WebVideoCreator是纯ESM包，无法使用CommonJS风格引入，如果依然希望使用require引入，请参考：https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
+- Render more video chunks in parallel. To maximize system resources, select the number of parallel chunks based on the number of CPU threads, assuming your system has sufficient memory.
 
-- 渲染过程中的页面跳转请求将被拦截，因为跳转页面将导致捕获上下文丢失。
+- CPU clock speed has a significant impact on baseline performance. Consumer-grade CPUs often have high clock speeds, which can lead to better performance.
+
+- Consider using GPU acceleration for rendering and compositing. If your device has a GPU but it's not being utilized, check the configuration settings or report the issue.
+
+- Using an SSD (Solid State Drive) can improve hard disk cache write performance during parallel rendering, reducing rendering time.
+
+- Select the right video hardware encoder. By default, software encoders are used (libx264 for mp4 and libvpx for webm). If you have integrated or discrete graphics, configure the hardware encoders they support.
+
+- Some time may be spent on network file transfers. It's advisable to deploy static file services on the same server or access the file server from a local network.
+
+- Reducing the output video resolution and frame rate is the most effective way to reduce time consumption.
+
+Here are the performance parameters for my personal computer as a reference:
+
+Operating System: Windows 10 (Better performance on Linux)
+
+CPU: AMD Ryzen 7 3700X (Clock speed 3.6-4.4GHz, 8 cores, 16 threads)
+
+GPU: Nvidia GeForce GTX 1660 SUPER (6GB VRAM, NVENC support)
+
+RAM: 16GB (DDR4 2400MHz)
+
+Video Type: SVG animations + GIFs + Lottie animations
+
+Video Resolution: 1280x720
+
+Video Frame Rate: 30
+
+Video Duration: 300s (5 minutes)
+
+Rendering Time: 61s (1 minute)
+
+Real-Time Rate: 4.844
+
+Parallel Rendering Count: 16
+
+<br>
+
+# Limitations
+
+- Constrained by browser [secure context restrictions](https://w3c.github.io/webappsec-secure-contexts/), WebVideoCreator can only access `localhost` / `127.0.0.1` or domains using HTTPS with valid certificates. For security reasons, it's recommended to use a local static server (e.g., `live-server` is a good choice), You can also use the content option to directly set the page content to avoid URL restrictions.
+
+- The headless experimental API on Mac systems may cause crashes and needs to be switched to compatibility rendering mode to run. However, compatibility rendering mode has various issues, so it is not recommended for Mac systems. See [Compatibility Rendering Mode](#compatible-rendering-mode).
+
+- WebVideoCreator is a pure ESM package and cannot be imported using CommonJS-style `require`. If you still want to use `require` to import it, refer to this [gist](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c) for guidance.
+
+- The page jump request during the video rendering process will be intercepted because jumping to the page will result in the loss of capture context.

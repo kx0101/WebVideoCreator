@@ -565,16 +565,16 @@ export default class Page extends EventEmitter {
             .map(Number)
             .sort()
             .find(time => currentTime >= time);
-        if(!matchTimeNodes)
+        if (!matchTimeNodes)
             return;
         const timeAction = this.timeActions[matchTimeNodes];
         delete this.timeActions[matchTimeNodes]
         try {
             const result = timeAction(this);
-            if(result instanceof Promise)
+            if (result instanceof Promise)
                 await result.catch(err => this.#emitError(err))
         }
-        catch(err) {
+        catch (err) {
             this.#emitError(err)
         }
     }
@@ -994,6 +994,15 @@ export default class Page extends EventEmitter {
      */
     get videoPreprocessor() {
         return this.parent.videoPreprocessor;
+    }
+
+    /**
+     * @param {Object} options - Screenshot options
+     * @returns {Promise<Buffer>} - Screenshot data
+     */
+    async screenshot(options = {}) {
+        assert(this.target, "Page target must be initialized");
+        return await this.target.screenshot(options);
     }
 
 }
